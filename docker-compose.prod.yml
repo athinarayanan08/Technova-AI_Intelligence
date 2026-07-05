@@ -1,0 +1,134 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: ai_org_postgres_prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-aiorg}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-aiorg_secret}
+      POSTGRES_DB: ${DB_NAME:-ai_org_db}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-aiorg} -d ${DB_NAME:-ai_org_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai_org_network_prod
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai_org_redis_prod
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_secret}
+    volumes:
+      - redis_prod_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_secret}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai_org_network_prod
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    container_name: ai_org_elasticsearch_prod
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - "bootstrap.memory_lock=true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch_prod_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - ai_org_network_prod
+
+  minio:
+    image: minio/minio:latest
+    container_name: ai_org_minio_prod
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minio_secret}
+    ports:
+      - "9001:9001" # Expose only console port, API can be internal
+    volumes:
+      - minio_prod_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ai_org_network_prod
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai_org_backend_prod
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-aiorg}:${DB_PASSWORD:-aiorg_secret}@postgres:5432/${DB_NAME:-ai_org_db}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379/0
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minio_secret}
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME:-ai-org-bucket}
+      - MINIO_SECURE=False
+      - SECRET_KEY=${JWT_SECRET_KEY:-production_jwt_secret_key_please_change}
+      - ALGORITHM=HS256
+      - GROQ_API_KEY=${GROQ_API_KEY:-placeholder}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+      - DEBUG=False
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - ai_org_network_prod
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=/api
+    container_name: ai_org_frontend_prod
+    restart: always
+    ports:
+      - "80:80" # Standard HTTP port for production traffic
+    depends_on:
+      - backend
+    networks:
+      - ai_org_network_prod
+
+volumes:
+  postgres_prod_data:
+  redis_prod_data:
+  elasticsearch_prod_data:
+  minio_prod_data:
+
+networks:
+  ai_org_network_prod:
+    driver: bridge
