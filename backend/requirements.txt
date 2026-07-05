@@ -1,0 +1,63 @@
+# AI Organizational Intelligence Platform — Backend
+# FastAPI + Python + PostgreSQL + Redis + Elasticsearch
+
+fastapi
+uvicorn[standard]
+python-dotenv
+
+# Database
+sqlalchemy
+asyncpg
+aiosqlite
+
+# Auth / Security
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+
+# Caching
+redis
+hiredis
+
+# Search
+elasticsearch
+
+# AI / LLM
+langchain
+langchain-groq
+langchain-community
+langchain-elasticsearch
+groq
+openai
+
+# Document Processing
+pymupdf
+python-docx
+openpyxl
+python-pptx
+
+# Storage (MinIO)
+minio
+
+# Scheduling
+apscheduler
+
+# Email
+fastapi-mail
+
+# Validation
+pydantic
+pydantic-settings
+email-validator
+
+# Utils
+httpx
+python-slugify
+pillow
+numpy
+pandas
+
+# Dev / Testing
+pytest
+pytest-asyncio
+faker
