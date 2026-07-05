@@ -32,11 +32,11 @@ graph TD
     MinIO[(🪣 MinIO - Document S3 Storage)]
     
     %% Connections %%
-    Client <=>|JSON API / JWT| FastAPI
-    FastAPI <=>|asyncpg / SQLAlchemy| Postgres
-    FastAPI <=>|redis-py| Redis
-    FastAPI <=>|Elastic API| ES
-    FastAPI <=>|MinIO SDK| MinIO
+    Client <-->|JSON API / JWT| FastAPI
+    FastAPI <-->|asyncpg / SQLAlchemy| Postgres
+    FastAPI <-->|redis-py| Redis
+    FastAPI <-->|Elastic API| ES
+    FastAPI <-->|MinIO SDK| MinIO
 ```
 
 ---
