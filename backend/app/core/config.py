@@ -4,25 +4,25 @@ from typing import List
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite+aiosqlite:///ai_org.db"
 
     # JWT
-    SECRET_KEY: str
+    SECRET_KEY: str = "your-super-secret-jwt-key-change-in-production-min-32-chars"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     # Redis
-    REDIS_URL: str
+    REDIS_URL: str = "redis://localhost:6379"
 
     # Elasticsearch
-    ELASTICSEARCH_URL: str
+    ELASTICSEARCH_URL: str = "http://localhost:9200"
 
     # MinIO
-    MINIO_ENDPOINT: str
-    MINIO_ACCESS_KEY: str
-    MINIO_SECRET_KEY: str
-    MINIO_BUCKET_NAME: str
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_BUCKET_NAME: str = "ai-org-documents"
     MINIO_SECURE: bool = False
 
     # AI
