@@ -5,7 +5,7 @@ from app.db.database import get_db
 from app.core.dependencies import require_any, require_team_lead
 from app.models.models import Attendance, Employee, RoleEnum
 from app.schemas.schemas import AttendanceCreate, AttendanceUpdate, AttendanceResponse
-from typing import List
+from typing import List, Optional
 from datetime import date
 
 router = APIRouter(prefix="/api/attendance", tags=["Attendance"])
