@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: technova-ai-backend
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///ai_org.db
+      - key: SECRET_KEY
+        value: your-super-secret-jwt-key-change-in-production-min-32-chars
+      - key: ALGORITHM
+        value: HS256
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: REDIS_URL
+        value: redis://localhost:6379
+      - key: ELASTICSEARCH_URL
+        value: http://localhost:9200
+      - key: MINIO_ENDPOINT
+        value: localhost:9000
+      - key: MINIO_ACCESS_KEY
+        value: minioadmin
+      - key: MINIO_SECRET_KEY
+        value: minio_secret
+      - key: MINIO_BUCKET_NAME
+        value: ai-org-documents
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        value: your-email@gmail.com
+      - key: SMTP_PASSWORD
+        value: your-app-password
+      - key: SMTP_FROM
+        value: noreply@technova.com
+      - key: APP_NAME
+        value: AI Organizational Intelligence Platform
+      - key: APP_VERSION
+        value: 1.0.0
+      - key: DEBUG
+        value: "true"
+      - key: ALLOWED_ORIGINS
+        value: "*"
