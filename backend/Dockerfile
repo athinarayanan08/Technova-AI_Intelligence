@@ -22,8 +22,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy all backend source files
 COPY . /app/
 
-# Expose port 8000 for FastAPI
+# Expose dynamic port for FastAPI
 EXPOSE 8000
 
-# Start FastAPI server without --reload for production safety and speed
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start FastAPI server binding to dynamic Render PORT
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
