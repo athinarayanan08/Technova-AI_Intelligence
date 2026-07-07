@@ -456,7 +456,7 @@ class HealthScoreResponse(BaseModel):
 
 
 class AiAssistantRequest(BaseModel):
-    question: str = Field(..., min_length=5, max_length=1000)
+    question: str = Field(..., min_length=1, max_length=1000)
     context_entity: Optional[str] = None  # "project", "employee", "team"
     context_id: Optional[int] = None
 
