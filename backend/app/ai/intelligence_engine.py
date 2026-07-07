@@ -381,7 +381,8 @@ Based ONLY on this data, provide 2-3 specific, actionable recommendations for th
         retrieved_data = await self._retrieve_context(question, context_entity, context_id, current_user)
 
         # STEP 1.5: Intercept simple greetings locally for instant, offline-resilient responses
-        q = question.lower().strip().replace("?", "").replace("!", "")
+        import re
+        q = re.sub(r'[^\w\s]', '', question.lower().strip())
         if q in ["hi", "hello", "hey", "hloo", "hola", "greetings", "help"]:
             answer, risk_level, recommendations = self._generate_rule_based_response(question, retrieved_data)
             evidence = [
@@ -494,9 +495,11 @@ Respond in JSON format only."""
         in_progress = task_summary.get("in_progress", 0)
         
         # 0. Friendly greetings
-        if any(greet in q for greet in ["hi", "hello", "hey", "hloo", "hola", "greetings", "help"]):
+        import re
+        q_clean = re.sub(r'[^\w\s]', '', q).strip()
+        if q_clean in ["hi", "hello", "hey", "hloo", "hola", "greetings", "help"]:
             name_str = user_info.get("name", "User")
-            answer = f"Hello {name_str}! I am your Techno AI Assistant. I can help you analyze employee workloads, monitor burnout risk, check project statuses, or diagnose bugs. How can I assist you today?"
+            answer = f"Hi {name_str}! How can I help you today? You can ask me to analyze employee burnout, check project status, or manage tasks."
             risk_level = "LOW"
             recs = [
                 "Ask: 'Who is at risk of burnout?' to run burnout diagnostics.",
