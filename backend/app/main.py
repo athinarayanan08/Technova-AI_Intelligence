@@ -103,8 +103,8 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-# Health check
-@app.get("/health", tags=["System"])
+# Health check supporting GET and HEAD methods
+@app.api_route("/health", methods=["GET", "HEAD"], tags=["System"])
 async def health_check():
     return {
         "status": "healthy",
